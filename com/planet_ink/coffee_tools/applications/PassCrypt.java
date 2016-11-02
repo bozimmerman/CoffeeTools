@@ -83,7 +83,7 @@ public class PassCrypt
 			SecretKeySpec key = new SecretKeySpec(keyBytes, "AES");
 			Cipher c = Cipher.getInstance("AES");
 			c.init(Cipher.DECRYPT_MODE, key);
-			byte[] decordedValue = B64Encoder.B64decode(encryptedText.toString());
+			byte[] decordedValue =  javax.xml.bind.DatatypeConverter.parseBase64Binary(encryptedText.toString());
 			byte[] decValue = c.doFinal(decordedValue);
 			String decryptedValue = trimCR(new String(decValue));
 			
@@ -93,7 +93,7 @@ public class PassCrypt
 				
 				c.init(Cipher.ENCRYPT_MODE, key);
 				byte[] encVal = c.doFinal(decryptedValue.getBytes());
-				String encryptedValue = B64Encoder.B64encodeBytes(encVal,B64Encoder.DONT_BREAK_LINES);
+				String encryptedValue = javax.xml.bind.DatatypeConverter.printBase64Binary(encVal);//,B64Encoder.DONT_BREAK_LINES);
 				FileWriter fw=new FileWriter(filename);
 				fw.write(encryptedValue+"\n");
 				fw.flush();
