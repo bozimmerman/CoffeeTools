@@ -4,9 +4,8 @@ import java.io.*;
 
 public class InFileFind 
 {
-
-	public InFileFind() {
-		// TODO Auto-generated constructor stub
+	public InFileFind() 
+	{
 	}
 
 	private static class BufferedRandomAccessFile
@@ -44,8 +43,8 @@ public class InFileFind
 			{
 				return buf[(int)(pos - posStart)];
 			}
-			final long oldPosStart = posStart;
-			final int oldBufLength = bufLength;
+			long oldPosStart = posStart;
+			int oldLength = bufLength;
 			if((pos < posStart)&&(pos > posStart - buf.length))
 			{
 				posStart = posStart - buf.length;
@@ -57,8 +56,8 @@ public class InFileFind
 			rF.seek(posStart);
 			bufLength = buf.length;
 			if(posStart + bufLength >= length)
-				bufLength = (int)(length - posStart)-1;
-			System.out.println(codeName+": "+oldPosStart+"-"+oldBufLength+"  : "+pos+" : "+posStart +"-"+bufLength);
+				bufLength = (int)(length - posStart);
+			System.out.println(codeName+": "+oldPosStart+"-"+oldLength+"  : "+pos+" : "+posStart +"-"+bufLength);
 			rF.readFully(buf,0,bufLength);
 			return buf[(int)(pos - posStart)];
 		}
@@ -66,10 +65,12 @@ public class InFileFind
 	
 	public static long fileFile(final String parentFileName, final String subFileName) throws IOException
 	{
-		
-		BufferedRandomAccessFile pF = new BufferedRandomAccessFile(parentFileName,65536);
-		BufferedRandomAccessFile sF = new BufferedRandomAccessFile(subFileName,65536);
+		final int BUFFER_SIZE = 65536 * 1024;
+		BufferedRandomAccessFile pF = new BufferedRandomAccessFile(parentFileName,BUFFER_SIZE);
+		BufferedRandomAccessFile sF = new BufferedRandomAccessFile(subFileName,BUFFER_SIZE);
 		long i = 0;
+		long DOT_PACE=pF.length() / 80;
+		long NEXT_DOT = DOT_PACE;
 		while(i<pF.length())
 		{
 			long j = 0;
@@ -78,7 +79,10 @@ public class InFileFind
 				j++;
 			}
 			if(j == sF.length()) 
+			{
+				System.out.println("!");
 				return i;
+			}
 			else 
 			{ //shift
 				if(i+sF.length() < pF.length())
@@ -92,8 +96,14 @@ public class InFileFind
 					}
 				}
 				i += sF.length()-j;
+				if(i>NEXT_DOT)
+				{
+					NEXT_DOT += DOT_PACE;
+					System.out.print(".");
+				}
 			}
 		}
+		System.out.println("!");
 		return -1;
 	}
 	
