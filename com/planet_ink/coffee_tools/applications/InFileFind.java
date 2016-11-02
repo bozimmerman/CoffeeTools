@@ -1,6 +1,7 @@
 package com.planet_ink.coffee_tools.applications;
 
 import java.io.*;
+import java.util.Arrays;
 
 public class InFileFind 
 {
@@ -45,9 +46,9 @@ public class InFileFind
 			}
 			long oldPosStart = posStart;
 			int oldLength = bufLength;
-			if((pos < posStart)&&(pos > posStart - buf.length))
+			if((pos < posStart)&&(pos > posStart - (buf.length/2)))
 			{
-				posStart = posStart - buf.length;
+				posStart = posStart - (buf.length/2);
 				if(posStart < 0)
 					posStart = 0;
 			}
@@ -57,7 +58,7 @@ public class InFileFind
 			bufLength = buf.length;
 			if(posStart + bufLength >= length)
 				bufLength = (int)(length - posStart);
-			System.out.println(codeName+": "+oldPosStart+"-"+oldLength+"  : "+pos+" : "+posStart +"-"+bufLength);
+			//System.out.println(codeName+": "+oldPosStart+"-"+oldLength+"  : "+pos+" : "+posStart +"-"+bufLength);
 			rF.readFully(buf,0,bufLength);
 			return buf[(int)(pos - posStart)];
 		}
@@ -68,6 +69,18 @@ public class InFileFind
 		final int BUFFER_SIZE = 65536 * 1024;
 		BufferedRandomAccessFile pF = new BufferedRandomAccessFile(parentFileName,BUFFER_SIZE);
 		BufferedRandomAccessFile sF = new BufferedRandomAccessFile(subFileName,BUFFER_SIZE);
+		long[] sFmap=new long[256];
+		Arrays.fill(sFmap, -1);
+		int fillRemains = 256;
+		sF.get(0); // preload from the front
+		for(long j = sF.length()-1; j >= 0 && (fillRemains>0); j--)
+		{
+			if(sFmap[sF.get(j) & 0xff]<0)
+			{
+				sFmap[sF.get(j) & 0xff]=j;
+				fillRemains--;
+			}
+		}
 		long i = 0;
 		long DOT_PACE=pF.length() / 80;
 		long NEXT_DOT = DOT_PACE;
@@ -87,16 +100,12 @@ public class InFileFind
 			{ //shift
 				if(i+sF.length() < pF.length())
 				{
-					for(j = sF.length()-1; j >= 0; j--)
-					{
-						if(sF.get(j) == pF.get(i+sF.length()))
-						{
-							break;
-						}
-					}
+					long k=sFmap[pF.get(i+sF.length()) & 0xff];
+					if(k >= 0)
+						j=k;
 				}
 				i += sF.length()-j;
-				if(i>NEXT_DOT)
+				while(i>NEXT_DOT)
 				{
 					NEXT_DOT += DOT_PACE;
 					System.out.print(".");
