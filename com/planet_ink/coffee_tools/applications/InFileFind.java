@@ -1,7 +1,7 @@
 package com.planet_ink.coffee_tools.applications;
 
 import java.io.*;
-import java.util.Arrays;
+import java.util.*;
 
 public class InFileFind 
 {
@@ -16,7 +16,7 @@ public class InFileFind
 		final RandomAccessFile rF;
 		private volatile long posStart=-1;
 		private volatile int bufLength = -1;
-		private final char codeName;
+		//private final char codeName;
 		private static final int[] codeNum = { 0 };
 		
 		public BufferedRandomAccessFile(final String fileName, final int bufferSize) throws IOException
@@ -26,7 +26,7 @@ public class InFileFind
 			buf = new byte[bufferSize];
 			synchronized(codeNum)
 			{
-				codeName = (char)((int)'A' + codeNum[0]);
+				//codeName = (char)((int)'A' + codeNum[0]);
 				codeNum[0]++;
 			}
 		}
@@ -44,8 +44,8 @@ public class InFileFind
 			{
 				return buf[(int)(pos - posStart)];
 			}
-			long oldPosStart = posStart;
-			int oldLength = bufLength;
+			//long oldPosStart = posStart;
+			//int oldLength = bufLength;
 			if((pos < posStart)&&(pos > posStart - (buf.length/2)))
 			{
 				posStart = posStart - (buf.length/2);
