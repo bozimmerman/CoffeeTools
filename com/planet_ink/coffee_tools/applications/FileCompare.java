@@ -28,6 +28,8 @@ public class FileCompare
 			int fc2=0;
 			long lastFailPos=-1;
 			long totalFails=0;
+			long DOT_INTERVAL = ((file1.length() > file2.length()) ? file2.length() : file1.length() / 80);
+			long NEXTDOT = DOT_INTERVAL;
 			while((c1>=0)&&(c2>=0)) 
 			{
 				c1=fstream1.read();
@@ -44,6 +46,11 @@ public class FileCompare
 					lastFailPos=pos;
 				}
 				pos++;
+				if(pos > NEXTDOT)
+				{
+					NEXTDOT += DOT_INTERVAL;
+					System.out.print(".");
+				}
 			}
 			if(totalFails>0)
 			{
