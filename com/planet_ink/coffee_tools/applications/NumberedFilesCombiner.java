@@ -7,7 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.TreeMap;
 
-public class FileCombiner 
+public class NumberedFilesCombiner 
 {
 	
 	public static boolean isNumber(String s)

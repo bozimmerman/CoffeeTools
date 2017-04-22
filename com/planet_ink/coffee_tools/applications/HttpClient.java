@@ -511,7 +511,6 @@ public class HttpClient
 		}
 	}
 
-
 	public Map<String,List<String>> getHeaders(final String urlStr)
 	{
 		HttpClient h=null;
@@ -530,6 +529,23 @@ public class HttpClient
 		{
 			if(h!=null)
 				h.finished();
+		}
+	}
+	
+	public static final void main(String[] args)
+	{
+		if(args.length==0)
+		{
+			System.err.println("Usage: HttpClient [URL]");
+			System.exit(-1);
+		}
+		Runtime r=Runtime.getRuntime();
+		long memToUse = r.totalMemory()-(1024*1024);
+		HttpClient h=new HttpClient();
+		try {
+			System.out.write(h.getRawUrl(args[0],(String)null,(int)memToUse,15000));
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 }

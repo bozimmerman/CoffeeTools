@@ -1,0 +1,32 @@
+CoffeeTools (C)2000-2017 Bo Zimmerman
+Please read the LICENSE file for license information
+Please read the NOTICE file for credits information
+
+List of Tools:
+
+FileCompare: Compare two files, showing first and offsets of mismatches, or compare all files in a path to each other, or compare all files in a path, while deleting duplicates.
+
+FilenameMixUpper: Scramble all the file names in a directory by renaming them to each others.
+
+FileSplitter: Split a file into numbered parts of a given size.  See also NumberedFilesCombiner
+
+HttpClient: Single web page GETter.  Probably more useful as an embedded class.
+
+ImageCopy: Similar to DD, allows you to make an image file from a device.
+
+InFileFind: Find where/at what offset a file appears inside another file
+
+NumeredFilesCombiner: Combine a directory of files with numbered-filenames back into a single file.
+
+PassCrypt: A tool for password-encrypting a file, which can be read and/or added to and re-encrypted
+
+PlayKlondike: A little experiment in discovering the number of winnable klondike solitaire games.
+
+RecursiveUnzip: Unzip all the zip files in a directory tree, with optional filename mangling
+
+Rename: A mass-file renamer.  Possibly the most useful tool in here.
+
+RLETool: A file compressor/decompressor using run-length-encoding, which is optimal for files with lots of repeating character blocks.
+
+SimilarFileFinder: Discover which files in a path are most similar to a given file or path of files.  Probably the second most useful tool here.
+

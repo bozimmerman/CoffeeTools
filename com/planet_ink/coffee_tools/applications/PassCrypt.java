@@ -2,7 +2,6 @@ package com.planet_ink.coffee_tools.applications;
 
 import java.io.*;
 import java.util.*;
-import java.security.*;
 
 import javax.crypto.*;
 import javax.crypto.spec.*;
@@ -103,27 +102,8 @@ public class PassCrypt
 			System.out.println(decryptedValue);
 			System.exit(0);
 		} 
-		catch (FileNotFoundException e) 
+		catch (Exception e) 
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchPaddingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvalidKeyException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalBlockSizeException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (BadPaddingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
