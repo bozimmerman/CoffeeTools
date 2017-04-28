@@ -256,11 +256,14 @@ public class SimilarFileFinder
 				for(int i=srchNames.size()-1;i>=0 && i>srchNames.size()-matches ;i--)
 				{
 					String path = srchNames.get(i);
-					String score=scores.get(path).toString();
-					int x=score.indexOf('.');
-					if((x>0)&&(x<score.length()-2))
-						score=score.substring(0,x+3);
-					System.out.println(score+"% "+path);
+					if(!path.equals(F.getAbsolutePath()))
+					{
+						String score=scores.get(path).toString();
+						int x=score.indexOf('.');
+						if((x>0)&&(x<score.length()-2))
+							score=score.substring(0,x+3);
+						System.out.println(score+"% "+path);
+					}
 				}
 			}
 			catch(Exception e)
