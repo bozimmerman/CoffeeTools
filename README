@@ -24,7 +24,9 @@ PlayKlondike: A little experiment in discovering the number of winnable klondike
 
 RecursiveUnzip: Unzip all the zip files in a directory tree, with optional filename mangling
 
-Rename: A mass-file renamer.  Possibly the most useful tool in here.
+Rename: A mass-file renamer.  Uses a bizarre, inscrutable syntax.
+
+RegExRename: A mass-file renamer.  Uses standard java RegEx.  The most trivial and useful tool here.
 
 RLETool: A file compressor/decompressor using run-length-encoding, which is optimal for files with lots of repeating character blocks.
 
