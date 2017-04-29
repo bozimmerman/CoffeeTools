@@ -32,3 +32,4 @@ RLETool: A file compressor/decompressor using run-length-encoding, which is opti
 
 SimilarFileFinder: Discover which files in a path are most similar to a given file or path of files.  Probably the second most useful tool here.
 
+SortByLine: Sort a text file organized by a fixed or delimited lines of text.
