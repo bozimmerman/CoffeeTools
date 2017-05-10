@@ -3,48 +3,77 @@ package com.planet_ink.coffee_tools.applications;
 import java.io.*;
 import java.util.*;
 
-public class SimilarFileFinder 
+public class FilePatternFinder 
 {
-	public static int numMatches(List<Set<Long>> matchSet, List<Set<Long>> fileSet, final int hashLength)
+	public static long[] findLongest(final byte[] bytes, List<List<Long>> matchSet, final int hashLength)
 	{
-		int numFound = 0;
-		for(Long hash : matchSet.get(0))
+		final long[] longest=new long[]{-1,-1,-1};
+		for(int c0=0;c0<hashLength;c0++)
 		{
-			boolean found=false;
-			for(int c=0;c<hashLength;c++)
+			final List<Long> set=matchSet.get(c0);
+			for(int h=0;h<set.size();h++)
 			{
-				if(fileSet.get(c).contains(hash))
+				final Long hash=set.get(h);
+				final int startOfSeek0=c0 + (h*hashLength);
+				for(int c=0;c<hashLength;c++)
 				{
-					found=true;
-					break;
+					final List<Long> hiOffSet=matchSet.get(c);
+					for(int hi=h;hi<hiOffSet.size();hi++)
+					{
+						if((hiOffSet.get(hi).equals(hash))
+						&&((c0!=c)||(hi!=h)))
+						{
+							int seek0=startOfSeek0;
+							final int startOfMatch0=c + (hi*hashLength);
+							int match0=startOfMatch0;
+							if(((match0-seek0)>longest[2])
+							&&((bytes.length-seek0)>longest[2])
+							&&((bytes.length-match0)>longest[2]))
+							{
+								long length=0;
+								while((seek0<bytes.length)
+								&&(match0<bytes.length)
+								&&(seek0<startOfMatch0)
+								&&(bytes[seek0]==bytes[match0]))
+								{
+									seek0++;
+									match0++;
+									length++;
+								}
+								if(length > longest[2])
+								{
+									longest[0]=startOfSeek0;
+									longest[1]=startOfMatch0;
+									longest[2]=length;
+								}
+							}
+						}
+					}
 				}
 			}
-			if(found)
-				numFound++;
 		}
-		return numFound;
+		return longest;
 	}
 	
-	public static List<Set<Long>> buildHashes(final byte[] bytes, final int hashLength)
+	public static List<List<Long>> buildHashes(final byte[] bytes, final int hashLength)
 	{
-		List<Set<Long>> finalMap = new ArrayList<Set<Long>>();
+		List<List<Long>> finalMap = new ArrayList<List<Long>>();
 		for(int b=0;b<hashLength;b++)
 		{
-			Set<Long> ThisSet = new TreeSet<Long>();
+			List<Long> ThisSet = new ArrayList<Long>();
 			for(int i=b;i+hashLength-1<bytes.length;i+=hashLength)
 			{
 				long hash = 0;
 				for(int x=0;x<hashLength;x++)
 					hash = (hash << 8) | bytes[i+x];
-				if(!ThisSet.contains(Long.valueOf(hash)))
-					ThisSet.add(Long.valueOf(hash));
+				ThisSet.add(Long.valueOf(hash));
 			}
 			finalMap.add(ThisSet);
 		}
 		return finalMap;
 	}
 
-	public static List<Set<Long>> buildFile(String filename, final int hashLength) throws IOException
+	public static byte[] getFileBytes(String filename) throws IOException
 	{
 		File f = new File(filename);
 		BufferedInputStream fi = new BufferedInputStream(new FileInputStream(f));
@@ -60,7 +89,7 @@ public class SimilarFileFinder
 			}
 		}
 		fi.close();
-		return buildHashes(fileBytes, hashLength);
+		return fileBytes;
 	}
 	
 	public static List<String> fetchDirFiles(File dirRoot, Set<String> done, final boolean recurse, final int depth)
@@ -94,21 +123,20 @@ public class SimilarFileFinder
 	
 	public static void main(String[] args)
 	{
-		if(args.length < 2)
+		if(args.length < 1)
 		{
-			System.out.println("Usage: SimilarFinder [options] [path to all similars] [path/file to search FOR]");
+			System.out.println("Usage: FilePatternFinder [options] \"[path/file to inspect]\"");
 			System.out.println("Options: ");
 			System.out.println("-r recursive similar path search");
 			System.out.println("-depth -d [number] how deep to recurse (only with -r)");
-			System.out.println("-matches -m [number/5] how many top matches to return");
 			System.out.println("-length -l [number/4] length of the hash run");
+			System.out.println("-t truncate files that have 1/2 mirror-matches");
 			System.exit(-1);
 		}
 		
 		String filename = args[args.length-1];
-		String searchPath = args[args.length-2];
 		Map<String,String> options = new Hashtable<String,String>();
-		for(int i=0;i<args.length-2;i++)
+		for(int i=0;i<args.length-1;i++)
 		{
 			if(args[i].startsWith("-")||args[i].startsWith("/"))
 			{
@@ -124,6 +152,7 @@ public class SimilarFileFinder
 		}
 		
 		int hashLength = 4;
+		boolean truncate = options.containsKey("t");
 		if(options.containsKey("l"))
 		{
 			hashLength = Integer.valueOf(options.get("l")).intValue();
@@ -160,15 +189,6 @@ public class SimilarFileFinder
 		if(options.containsKey("depth"))
 		{
 			depth = Integer.valueOf(options.get("depth")).intValue();
-		}
-		int matches = 5;
-		if(options.containsKey("m"))
-		{
-			matches = Integer.valueOf(options.get("m")).intValue();
-		}
-		if(options.containsKey("matches"))
-		{
-			matches = Integer.valueOf(options.get("matches")).intValue();
 		}
 		if(!baseF.exists())
 		{
@@ -213,58 +233,32 @@ public class SimilarFileFinder
 		}
 		else
 			filesToDo.add(baseF.getAbsoluteFile());
-		List<String> srchNames=new LinkedList<String>();
-		try
-		{
-			File s = new File(searchPath);
-			final HashSet<String> done = new HashSet<String>();
-			srchNames.addAll(fetchDirFiles(s,done,options.containsKey("r")||options.containsKey("recurse"),depth));
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-			System.exit(-1);
-		}
 		for(final File F : filesToDo)
 		{
 			if(filesToDo.size()>0)
 			{
-				System.out.println("");
-				System.out.println(F.getAbsolutePath()+": ");
+				System.out.print(F.getAbsolutePath()+": ");
 			}
 			try
 			{
-				List<Set<Long>> fileData = buildFile(F.getAbsolutePath(),hashLength);
-				final Map<String,Double> scores = new TreeMap<String,Double>();
-				for(String srchFile : srchNames)
+				byte[] fileData = getFileBytes(F.getAbsolutePath());
+				List<List<Long>> fileHashes = FilePatternFinder.buildHashes(fileData, hashLength);
+				long[] longest=FilePatternFinder.findLongest(fileData, fileHashes, hashLength);
+				if(longest[0]<0)
+					System.out.print("No internal matches.");
+				else
+					System.out.print(longest[2]+" byte match at offsets "+longest[0]+" and "+longest[1]);
+				if((truncate)
+				&&(longest[1]==longest[2])
+				&&(longest[0]==0)
+				&&(longest[1]+longest[2]==fileData.length))
 				{
-					List<Set<Long>> srchData = buildFile(srchFile,hashLength);
-					double score1 = numMatches(fileData,srchData,hashLength);
-					double score2 = numMatches(srchData,fileData,hashLength);
-					double topScore = (fileData.get(0).size() + srchData.get(0).size()) / 2.0;
-					double score = (score1 + score2) / 2.0;
-					scores.put(srchFile, Double.valueOf(100.0 * (score/topScore)));
+					System.out.println("**Truncated**");
+					FileOutputStream fo=new FileOutputStream(F);
+					fo.write(fileData, 0, (int)longest[1]);
+					fo.close();
 				}
-				Collections.sort(srchNames,new Comparator<String>(){
-					@Override
-					public int compare(String arg0, String arg1) 
-					{
-						return scores.get(arg0).compareTo(scores.get(arg1));
-					}
-				});
-				System.out.println("Most similar: ");
-				for(int i=srchNames.size()-1;i>=0 && i>srchNames.size()-matches ;i--)
-				{
-					String path = srchNames.get(i);
-					if(!path.equals(F.getAbsolutePath()))
-					{
-						String score=scores.get(path).toString();
-						int x=score.indexOf('.');
-						if((x>0)&&(x<score.length()-2))
-							score=score.substring(0,x+3);
-						System.out.println(score+"% "+path);
-					}
-				}
+				System.out.println("");
 			}
 			catch(Exception e)
 			{
