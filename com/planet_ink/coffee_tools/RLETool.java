@@ -25,10 +25,14 @@ public class RLETool
 			System.exit(-1);
 		}
 		boolean compress = args[0].equalsIgnoreCase("COMPRESS");
-		try(BufferedInputStream bin = new BufferedInputStream(new FileInputStream(file1)))
+		BufferedInputStream bin=null;
+		try
 		{
-			try(FileOutputStream fout=new FileOutputStream(file2))
+			bin = new BufferedInputStream(new FileInputStream(file1));
+			FileOutputStream fout=null;
+			try
 			{
+				fout=new FileOutputStream(file2);
 				if(compress)
 				{
 					int mode=-1;
@@ -157,6 +161,11 @@ public class RLETool
 					}
 				}
 			}
+			finally
+			{
+				if(fout != null)
+					fout.close();
+			}
 		} 
 		catch (FileNotFoundException e) 
 		{
@@ -165,6 +174,18 @@ public class RLETool
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(-1);
+		}
+		finally
+		{
+			if(bin != null)
+			{
+				try 
+				{
+					bin.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 }

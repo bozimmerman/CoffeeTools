@@ -1,0 +1,29 @@
+<project name="CoffeeTools" default="init">
+	<target name="init">
+		<echo>compile, clean, or docs</echo>
+	</target>
+	<target name="compile">
+		<javac srcdir="." classpath="." nowarn="yes" deprecation="on" target="1.6" source="1.6" debug="on" memoryMaximumSize="1024m" fork="on">
+			<compilerarg value="-Xlint:unchecked" />
+    	</javac>
+		<jar destfile="CTFilesRenamer.jar" basedir="." includes="com/planet_ink/coffee_tools/CTFilesRenamer.class">
+			<manifest>
+				<attribute name="Main-Class" value="com.planet_ink.coffee_tools.CTFilesRenamer"/>
+			</manifest>
+		</jar>
+		<echo>Compiliation done.</echo>
+	</target>
+	<target name="doc">
+		<echo>Beginning Javadoc generation</echo>
+		<javadoc sourcepath="." destdir=".\docs" packagenames="com\planet_ink\coffee_tools.*" maxmemory="1024m" verbose="on" linksource="yes" source="1.6" author="true" version="true" use="true"/>
+		<echo>Javadoc generation complete.</echo>
+	</target>
+	<target name="clean">
+	  <delete>
+		  <fileset dir="." includes="**/*.class"/>
+	  </delete>
+	</target>
+</project>
+
+
+
