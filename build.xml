@@ -5,10 +5,80 @@
 	<target name="compile">
 		<javac srcdir="." classpath="." nowarn="yes" deprecation="on" target="1.6" source="1.6" debug="on" memoryMaximumSize="1024m" fork="on">
 			<compilerarg value="-Xlint:unchecked" />
-    	</javac>
+		</javac>
 		<jar destfile="CTFilesRenamer.jar" basedir="." includes="com/planet_ink/coffee_tools/CTFilesRenamer.class">
 			<manifest>
 				<attribute name="Main-Class" value="com.planet_ink.coffee_tools.CTFilesRenamer"/>
+			</manifest>
+		</jar>
+		<jar destfile="FileCompare.jar" basedir="." includes="com/planet_ink/coffee_tools/FileCompare.class">
+			<manifest>
+				<attribute name="Main-Class" value="com.planet_ink.coffee_tools.FileCompare"/>
+			</manifest>
+		</jar>
+		<jar destfile="FilenameMixUpper.jar" basedir="." includes="com/planet_ink/coffee_tools/FilenameMixUpper.class">
+			<manifest>
+				<attribute name="Main-Class" value="com.planet_ink.coffee_tools.FilenameMixUpper"/>
+			</manifest>
+		</jar>
+		<jar destfile="FileSplitter.jar" basedir="." includes="com/planet_ink/coffee_tools/FileSplitter.class">
+			<manifest>
+				<attribute name="Main-Class" value="com.planet_ink.coffee_tools.FileSplitter"/>
+			</manifest>
+		</jar>
+		<jar destfile="HttpClient.jar" basedir="." includes="com/planet_ink/coffee_tools/HttpClient.class">
+			<manifest>
+				<attribute name="Main-Class" value="com.planet_ink.coffee_tools.HttpClient"/>
+			</manifest>
+		</jar>
+		<jar destfile="ImageCopy.jar" basedir="." includes="com/planet_ink/coffee_tools/ImageCopy.class">
+			<manifest>
+				<attribute name="Main-Class" value="com.planet_ink.coffee_tools.ImageCopy"/>
+			</manifest>
+		</jar>
+		<jar destfile="InFileFind.jar" basedir="." includes="com/planet_ink/coffee_tools/InFileFind.class">
+			<manifest>
+				<attribute name="Main-Class" value="com.planet_ink.coffee_tools.InFileFind"/>
+			</manifest>
+		</jar>
+		<jar destfile="NumberedFilesCombiner.jar" basedir="." includes="com/planet_ink/coffee_tools/NumberedFilesCombiner.class">
+			<manifest>
+				<attribute name="Main-Class" value="com.planet_ink.coffee_tools.NumberedFilesCombiner"/>
+			</manifest>
+		</jar>
+		<jar destfile="PassCrypt.jar" basedir="." includes="com/planet_ink/coffee_tools/PassCrypt.class">
+			<manifest>
+				<attribute name="Main-Class" value="com.planet_ink.coffee_tools.PassCrypt"/>
+			</manifest>
+		</jar>
+		<jar destfile="RecursiveUnzip.jar" basedir="." includes="com/planet_ink/coffee_tools/RecursiveUnzip.class">
+			<manifest>
+				<attribute name="Main-Class" value="com.planet_ink.coffee_tools.RecursiveUnzip"/>
+			</manifest>
+		</jar>
+		<jar destfile="RegFilesRenamer.jar" basedir="." includes="com/planet_ink/coffee_tools/RegFilesRenamer.class">
+			<manifest>
+				<attribute name="Main-Class" value="com.planet_ink.coffee_tools.RegFilesRenamer"/>
+			</manifest>
+		</jar>
+		<jar destfile="RLETool.jar" basedir="." includes="com/planet_ink/coffee_tools/RLETool.class">
+			<manifest>
+				<attribute name="Main-Class" value="com.planet_ink.coffee_tools.RLETool"/>
+			</manifest>
+		</jar>
+		<jar destfile="SimilarFileFinder.jar" basedir="." includes="com/planet_ink/coffee_tools/SimilarFileFinder.class">
+			<manifest>
+				<attribute name="Main-Class" value="com.planet_ink.coffee_tools.SimilarFileFinder"/>
+			</manifest>
+		</jar>
+		<jar destfile="SortByLine.jar" basedir="." includes="com/planet_ink/coffee_tools/SortByLine.class">
+			<manifest>
+				<attribute name="Main-Class" value="com.planet_ink.coffee_tools.SortByLine"/>
+			</manifest>
+		</jar>
+		<jar destfile="FilePatternFinder.jar" basedir="." includes="com/planet_ink/coffee_tools/FilePatternFinder.class">
+			<manifest>
+				<attribute name="Main-Class" value="com.planet_ink.coffee_tools.FilePatternFinder"/>
 			</manifest>
 		</jar>
 		<echo>Compiliation done.</echo>
@@ -21,6 +91,7 @@
 	<target name="clean">
 	  <delete>
 		  <fileset dir="." includes="**/*.class"/>
+		  <fileset dir="." includes="*.jar"/>
 	  </delete>
 	</target>
 </project>
