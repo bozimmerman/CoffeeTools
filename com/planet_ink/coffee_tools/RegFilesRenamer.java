@@ -5,13 +5,13 @@ import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class RegExRename 
+public class RegFilesRenamer 
 {
 	public static void main(String[] args)
 	{
 		if(args.length<3)
 		{
-			System.out.println("USAGE: RegExRename (\\R)[PATH] [MATCH EXPRESSION] [REPLACE EXPRESSION]");
+			System.out.println("USAGE: RegFilesRenamer (\\R)[PATH] [MATCH EXPRESSION] [REPLACE EXPRESSION]");
 			System.out.println(". any char, \\d a digit, \\D non-digit, \\s whitespace, \\S nonwhitespace");
 			System.out.println("\\w word char, \\W non-word char");
 			System.out.println("? once or no, * zero or more, + one or more, {n} n times");

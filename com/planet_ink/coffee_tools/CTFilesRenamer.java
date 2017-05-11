@@ -3,7 +3,7 @@ package com.planet_ink.coffee_tools;
 import java.io.*;
 import java.util.Vector;
 
-public class Rename 
+public class CTFilesRenamer 
 {
 	
 	public static String rightReplacement(StringBuffer repl, String filename)
@@ -31,7 +31,7 @@ public class Rename
 	{
 		if(args.length<2)
 		{
-			System.out.println("USAGE: Rename (\\R)[OLD_MASK (@=*, %=.)] [REPLACEMENT EQUATES (@=repl1 %=repl2 X=repl3)]");
+			System.out.println("USAGE: CTFilesRenamer (\\R)[OLD_MASK (@=*, %=.)] [REPLACEMENT EQUATES (@=repl1 %=repl2 X=repl3)]");
 			System.out.println("USAGE: Mask sections are divided by @ or %");
 			System.out.println("USAGE: Each section must have its own replacement equate");
 			System.out.println("USAGE: Use @ to match 0 or more characters");
