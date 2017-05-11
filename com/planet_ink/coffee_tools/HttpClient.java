@@ -1,4 +1,4 @@
-package com.planet_ink.coffee_tools.applications;
+package com.planet_ink.coffee_tools;
 
 import java.net.*;
 import java.io.*;
