@@ -8,6 +8,8 @@ CTFilesRenamer: A mass-file renamer.  Uses a bizarre, inscrutable syntax.
 
 FileCompare: Compare two files, showing first and offsets of mismatches, or compare all files in a path to each other, or compare all files in a path, while deleting duplicates.
 
+FileDeInterlacer - When two files are interlaced parts of a single file, this will recombine the low and high files, and potentially numerous such file sets.
+
 FilenameMixUpper: Scramble all the file names in a directory by renaming them to each others.
 
 FileSplitter: Split a file into numbered parts of a given size.  See also NumberedFilesCombiner
