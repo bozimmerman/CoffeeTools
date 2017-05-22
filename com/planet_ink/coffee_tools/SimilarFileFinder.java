@@ -17,6 +17,7 @@ limitations under the License.
 
 import java.io.*;
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class SimilarFileFinder 
 {
@@ -78,7 +79,7 @@ public class SimilarFileFinder
 		return buildHashes(fileBytes, hashLength);
 	}
 	
-	public static List<String> fetchDirFiles(File dirRoot, Set<String> done, final boolean recurse, final int depth)
+	public static List<String> fetchDirFiles(File dirRoot, Set<String> done, final boolean recurse, final int depth, final Pattern P)
 	{
 		List<String> fileList = new LinkedList<String>();
 		if(dirRoot.isDirectory())
@@ -86,8 +87,11 @@ public class SimilarFileFinder
 			long hash=0;
 			for(File f : dirRoot.listFiles())
 			{
-				hash ^= f.getName().intern().hashCode();
-				hash ^= f.length();
+				if((P==null)||(P.matcher(f.getName().subSequence(0, f.getName().length())).matches()))
+				{
+					hash ^= f.getName().intern().hashCode();
+					hash ^= f.length();
+				}
 			}
 			final String key = dirRoot.getName()+hash;
 			if(!done.contains(key))
@@ -97,12 +101,13 @@ public class SimilarFileFinder
 				{
 					if(f.isFile() || (recurse && (depth > 0)))
 					{
-						fileList.addAll(fetchDirFiles(f,done,recurse,depth-1));
+						fileList.addAll(fetchDirFiles(f,done,recurse,depth-1,P));
 					}
 				}
 			}
 		}
 		else
+		if((P==null)||(P.matcher(dirRoot.getName().subSequence(0, dirRoot.getName().length())).matches()))
 			fileList.add(dirRoot.getAbsolutePath());
 		return fileList;
 	}
@@ -231,9 +236,21 @@ public class SimilarFileFinder
 		List<String> srchNames=new LinkedList<String>();
 		try
 		{
+			int x=searchPath.lastIndexOf(File.separator);
+			Pattern searchPattern=null;
+			if(x>0)
+			{
+				String possMatch = searchPath.substring(x+1);
+				if((possMatch.indexOf('*')>=0)||(possMatch.indexOf('?')>=0))
+				{
+					String regex = possMatch.replace("?", ".?").replace("*", ".*?");
+					searchPattern = Pattern.compile(regex);
+					searchPath = searchPath.substring(0, x);
+				}
+			}
 			File s = new File(searchPath);
 			final HashSet<String> done = new HashSet<String>();
-			srchNames.addAll(fetchDirFiles(s,done,options.containsKey("r")||options.containsKey("recurse"),depth));
+			srchNames.addAll(fetchDirFiles(s,done,options.containsKey("r")||options.containsKey("recurse"),depth,searchPattern));
 		}
 		catch(Exception e)
 		{
