@@ -82,6 +82,11 @@
 				<attribute name="Main-Class" value="com.planet_ink.coffee_tools.FilePatternFinder"/>
 			</manifest>
 		</jar>
+		<jar destfile="bin/FileDeInterleaver.jar" basedir="." includes="com/planet_ink/coffee_tools/FileDeInterleaver*.class">
+			<manifest>
+				<attribute name="Main-Class" value="com.planet_ink.coffee_tools.FileDeInterleaver"/>
+			</manifest>
+		</jar>
 		<echo>Compiliation done.</echo>
 	</target>
 	<target name="doc">
