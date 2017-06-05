@@ -10,7 +10,11 @@ FileCompare: Compare two files, showing first and offsets of mismatches, or comp
 
 FileDeInterlacer - When two files are interlaced parts of a single file, this will recombine the low and high files, and potentially numerous such file sets.
 
+FileInsert: Insert bytes into another file, from either another file, or a byte
+
 FilenameMixUpper: Scramble all the file names in a directory by renaming them to each others.
+
+FilePatternFinder: Find the largest repeated byte pattern in a file that doesn't overlap. 
 
 FileSplitter: Split a file into numbered parts of a given size.  See also NumberedFilesCombiner
 
@@ -35,5 +39,3 @@ RLETool: A file compressor/decompressor using run-length-encoding, which is opti
 SimilarFileFinder: Discover which files in a path are most similar to a given file or path of files.  Probably the second most useful tool here.
 
 SortByLine: Sort a text file organized by a fixed or delimited lines of text.
-
-FilePatternFinder: Find the largest repeated byte pattern in a file that doesn't overlap. 

@@ -78,7 +78,7 @@ public class CTFilesRenamer
 		paths.addElement(path);
 		for(int p=0;p<paths.size();p++)
 		{
-			path = (String)paths.elementAt(p);
+			path = paths.elementAt(p);
 			File pathF=new File(path);
 			char[] m=mask.toCharArray();
 			if(pathF.exists()&&pathF.isDirectory())
