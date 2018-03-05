@@ -60,7 +60,7 @@ public class SimilarFileFinder
 		return finalMap;
 	}
 
-	public static List<Set<Long>> buildFile(String filename, final int hashLength) throws IOException
+	public static byte[] getFileBytes(String filename) throws IOException
 	{
 		File f = new File(filename);
 		BufferedInputStream fi = new BufferedInputStream(new FileInputStream(f));
@@ -68,14 +68,28 @@ public class SimilarFileFinder
 		int totalBytesRead = 0;
 		while(totalBytesRead < fileBytes.length)
 		{
-			int bytesRemaining = fileBytes.length - totalBytesRead;
-			int bytesRead = fi.read(fileBytes, totalBytesRead, bytesRemaining); 
+			final int bytesRemaining = fileBytes.length - totalBytesRead;
+			final int bytesRead = fi.read(fileBytes, totalBytesRead, bytesRemaining); 
 			if (bytesRead > 0)
 			{
 				totalBytesRead = totalBytesRead + bytesRead;
 			}
 		}
 		fi.close();
+		return fileBytes;
+	}
+	
+	public static long getFileLength(String filename) throws IOException
+	{
+		File f = new File(filename);
+		if(f.exists())
+			return f.length();
+		return 0;
+	}
+	
+	public static List<Set<Long>> buildFile(String filename, final int hashLength) throws IOException
+	{
+		final byte[] fileBytes = getFileBytes(filename);
 		return buildHashes(fileBytes, hashLength);
 	}
 	
@@ -122,6 +136,10 @@ public class SimilarFileFinder
 			System.out.println("-depth -d [number] how deep to recurse (only with -r)");
 			System.out.println("-matches -m [number/5] how many top matches to return");
 			System.out.println("-length -l [number/4] length of the hash run");
+			System.out.println("-minimum -n [number 0-100] minimum percentage match");
+			System.out.println("More Options: ");
+			System.out.println("-x exact match on file extensions");
+			//TODO:System.out.println("-z unzip/ungzip things");
 			System.exit(-1);
 		}
 		
@@ -143,6 +161,7 @@ public class SimilarFileFinder
 			}
 		}
 		
+		boolean matchExtensions=options.containsKey("x");
 		int hashLength = 4;
 		if(options.containsKey("l"))
 		{
@@ -157,6 +176,12 @@ public class SimilarFileFinder
 			System.err.println("illegal hash length: "+hashLength);
 			System.exit(-1);
 		}
+		int minPctMatch = 0;
+		if(options.containsKey("n"))
+			minPctMatch=Integer.valueOf(options.get("n")).intValue();
+		if(options.containsKey("minimum"))
+			minPctMatch=Integer.valueOf(options.get("minimum")).intValue();
+		
 		File baseF=new File(filename);
 		java.util.regex.Pattern P=null;
 		if((filename.indexOf('*')>=0)||(filename.indexOf('+')>=0))
@@ -233,7 +258,7 @@ public class SimilarFileFinder
 		}
 		else
 			filesToDo.add(baseF.getAbsoluteFile());
-		List<String> srchNames=new LinkedList<String>();
+		final List<String> srchNames=new LinkedList<String>();
 		try
 		{
 			int x=searchPath.lastIndexOf(File.separator);
@@ -257,6 +282,7 @@ public class SimilarFileFinder
 			e.printStackTrace();
 			System.exit(-1);
 		}
+		final boolean perfectMatch =(minPctMatch >= 100); 
 		for(final File F : filesToDo)
 		{
 			if(filesToDo.size()>0)
@@ -266,32 +292,59 @@ public class SimilarFileFinder
 			}
 			try
 			{
-				List<Set<Long>> fileData = buildFile(F.getAbsolutePath(),hashLength);
+				int x=F.getName().lastIndexOf('.');
+				String fileExt=(x>=0)?F.getName().substring(x+1):"";
+				final byte[] fileBytes = SimilarFileFinder.getFileBytes(F.getAbsolutePath()); 
+				List<Set<Long>> fileData = perfectMatch ? null : buildHashes(fileBytes, hashLength);
 				final Map<String,Double> scores = new TreeMap<String,Double>();
 				for(String srchFile : srchNames)
 				{
-					List<Set<Long>> srchData = buildFile(srchFile,hashLength);
-					double score1 = numMatches(fileData,srchData,hashLength);
-					double score2 = numMatches(srchData,fileData,hashLength);
-					double topScore = (fileData.get(0).size() + srchData.get(0).size()) / 2.0;
-					double score = (score1 + score2) / 2.0;
-					scores.put(srchFile, Double.valueOf(100.0 * (score/topScore)));
+					if(matchExtensions)
+					{
+						x=srchFile.lastIndexOf('.');
+						String srchExt=(x>=0)?srchFile.substring(x+1):"";
+						if(!srchExt.equalsIgnoreCase(fileExt))
+							continue;
+					}
+					if(perfectMatch)
+					{
+						if(SimilarFileFinder.getFileLength(srchFile) != F.length())
+							continue;
+						final byte[] blk1=SimilarFileFinder.getFileBytes(srchFile);
+						if(Arrays.equals(fileBytes, blk1))
+							scores.put(srchFile, Double.valueOf(100.0));
+						continue;
+					}
+					final List<Set<Long>> srchData = buildFile(srchFile,hashLength);
+					final double score1 = numMatches(fileData,srchData,hashLength);
+					final double score2 = numMatches(srchData,fileData,hashLength);
+					final double topScore = (fileData.get(0).size() + srchData.get(0).size()) / 2.0;
+					final double score = (score1 + score2) / 2.0;
+					final Double pct=Double.valueOf(100.0 * (score/topScore));
+					if(pct.doubleValue() >= minPctMatch)
+						scores.put(srchFile, pct);
 				}
-				Collections.sort(srchNames,new Comparator<String>(){
+				Collections.sort(srchNames,new Comparator<String>()
+				{
 					@Override
 					public int compare(String arg0, String arg1) 
 					{
+						if(!scores.containsKey(arg0))
+							return -1;
+						if(!scores.containsKey(arg1))
+							return 1;
 						return scores.get(arg0).compareTo(scores.get(arg1));
 					}
 				});
 				System.out.println("Most similar: ");
 				for(int i=srchNames.size()-1;i>=0 && i>srchNames.size()-matches ;i--)
 				{
-					String path = srchNames.get(i);
-					if(!path.equals(F.getAbsolutePath()))
+					final String path = srchNames.get(i);
+					if((!path.equals(F.getAbsolutePath()))
+					&&(scores.containsKey(path)))
 					{
 						String score=scores.get(path).toString();
-						int x=score.indexOf('.');
+						x=score.indexOf('.');
 						if((x>0)&&(x<score.length()-2))
 							score=score.substring(0,x+3);
 						System.out.println(score+"% "+path);
