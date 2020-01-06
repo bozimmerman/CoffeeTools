@@ -362,7 +362,13 @@ public class SimilarFileFinder
 					final double score2 = numMatches(srchData,fileData,hashLength);
 					final double topScore = (fileData.get(0).size() + srchData.get(0).size()) / 2.0;
 					final double score = (score1 + score2) / 2.0;
-					final Double pct=Double.valueOf(100.0 * (score/topScore));
+					Double pct=Double.valueOf(100.0 * (score/topScore));
+					if(pct.doubleValue()>=99.5)
+					{
+						final byte[] blk1=SimilarFileFinder.getFileBytes(srchFile,zipFiles);
+						if(!Arrays.equals(fileBytes, blk1))
+							pct=Double.valueOf(99.0);
+					}
 					if(pct.doubleValue() >= minPctMatch)
 						scores.put(srchFile, pct);
 				}
@@ -372,7 +378,11 @@ public class SimilarFileFinder
 					public int compare(String arg0, String arg1) 
 					{
 						if(!scores.containsKey(arg0))
+						{
+							if(!scores.containsKey(arg1))
+								return 0;
 							return -1;
+						}
 						if(!scores.containsKey(arg1))
 							return 1;
 						return scores.get(arg0).compareTo(scores.get(arg1));
