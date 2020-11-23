@@ -20,12 +20,12 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
-public class SimilarFileFinder 
+public class SimilarFileFinder
 {
-	public static int numMatches(List<Set<Long>> matchSet, List<Set<Long>> fileSet, final int hashLength)
+	public static int numMatches(final List<Set<Long>> matchSet, final List<Set<Long>> fileSet, final int hashLength)
 	{
 		int numFound = 0;
-		for(Long hash : matchSet.get(0))
+		for(final Long hash : matchSet.get(0))
 		{
 			boolean found=false;
 			for(int c=0;c<hashLength;c++)
@@ -41,13 +41,13 @@ public class SimilarFileFinder
 		}
 		return numFound;
 	}
-	
+
 	public static List<Set<Long>> buildHashes(final byte[] bytes, final int hashLength)
 	{
-		List<Set<Long>> finalMap = new ArrayList<Set<Long>>();
+		final List<Set<Long>> finalMap = new ArrayList<Set<Long>>();
 		for(int b=0;b<hashLength;b++)
 		{
-			Set<Long> ThisSet = new TreeSet<Long>();
+			final Set<Long> ThisSet = new TreeSet<Long>();
 			for(int i=b;i+hashLength-1<bytes.length;i+=hashLength)
 			{
 				long hash = 0;
@@ -61,9 +61,9 @@ public class SimilarFileFinder
 		return finalMap;
 	}
 
-	public static byte[] getFileBytes(String filename, boolean zipFlag) throws IOException
+	public static byte[] getFileBytes(final String filename, final boolean zipFlag) throws IOException
 	{
-		File f = new File(filename);
+		final File f = new File(filename);
 		InputStream fi;
 		int len=(int)f.length();
 		if(zipFlag && filename.toLowerCase().endsWith(".gz"))
@@ -83,13 +83,13 @@ public class SimilarFileFinder
 		}
 		else
 			fi = new BufferedInputStream(new FileInputStream(f));
-		
-		byte[] fileBytes = new byte[len];
+
+		final byte[] fileBytes = new byte[len];
 		int totalBytesRead = 0;
 		while(totalBytesRead < fileBytes.length)
 		{
 			final int bytesRemaining = fileBytes.length - totalBytesRead;
-			final int bytesRead = fi.read(fileBytes, totalBytesRead, bytesRemaining); 
+			final int bytesRead = fi.read(fileBytes, totalBytesRead, bytesRemaining);
 			if (bytesRead > 0)
 			{
 				totalBytesRead = totalBytesRead + bytesRead;
@@ -98,28 +98,28 @@ public class SimilarFileFinder
 		fi.close();
 		return fileBytes;
 	}
-	
-	public static long getFileLength(String filename) throws IOException
+
+	public static long getFileLength(final String filename) throws IOException
 	{
-		File f = new File(filename);
+		final File f = new File(filename);
 		if(f.exists())
 			return f.length();
 		return 0;
 	}
-	
-	public static List<Set<Long>> buildFile(String filename, final int hashLength, boolean zipFiles) throws IOException
+
+	public static List<Set<Long>> buildFile(final String filename, final int hashLength, final boolean zipFiles) throws IOException
 	{
 		final byte[] fileBytes = getFileBytes(filename, zipFiles);
 		return buildHashes(fileBytes, hashLength);
 	}
-	
-	public static List<String> fetchDirFiles(File dirRoot, Set<String> done, final boolean recurse, final int depth, final Pattern P)
+
+	public static List<String> fetchDirFiles(final File dirRoot, final Set<String> done, final boolean recurse, final int depth, final Pattern P)
 	{
-		List<String> fileList = new LinkedList<String>();
+		final List<String> fileList = new LinkedList<String>();
 		if(dirRoot.isDirectory())
 		{
 			long hash=0;
-			for(File f : dirRoot.listFiles())
+			for(final File f : dirRoot.listFiles())
 			{
 				if((P==null)||(P.matcher(f.getName().subSequence(0, f.getName().length())).matches()))
 				{
@@ -131,7 +131,7 @@ public class SimilarFileFinder
 			if(!done.contains(key))
 			{
 				done.add(key);
-				for(File f : dirRoot.listFiles())
+				for(final File f : dirRoot.listFiles())
 				{
 					if(f.isFile() || (recurse && (depth > 0)))
 					{
@@ -145,8 +145,8 @@ public class SimilarFileFinder
 			fileList.add(dirRoot.getAbsolutePath());
 		return fileList;
 	}
-	
-	public static void main(String[] args)
+
+	public static void main(final String[] args)
 	{
 		if(args.length < 2)
 		{
@@ -163,16 +163,16 @@ public class SimilarFileFinder
 			System.out.println("-x exact match on file extensions");
 			System.exit(-1);
 		}
-		
-		String filename = args[args.length-1];
+
+		final String filename = args[args.length-1];
 		String searchPath = args[args.length-2];
-		Map<String,String> options = new Hashtable<String,String>();
+		final Map<String,String> options = new Hashtable<String,String>();
 		long cacheBytesRemain=16 * 1024 * 1024;
 		for(int i=0;i<args.length-2;i++)
 		{
 			if(args[i].startsWith("-")||args[i].startsWith("/"))
 			{
-				String option=args[i].substring(1).toLowerCase();
+				final String option=args[i].substring(1).toLowerCase();
 				String value=option;
 				if((i<args.length-3)&&(!(args[i+1].startsWith("-")||args[i+1].startsWith("/"))))
 				{
@@ -182,15 +182,15 @@ public class SimilarFileFinder
 				options.put(option, value);
 			}
 		}
-		
+
 		if(options.containsKey("c"))
 		{
-			long mbs=Integer.valueOf(options.get("c"));
+			final long mbs=Long.valueOf(options.get("c")).longValue();
 			if(mbs > 0)
 				cacheBytesRemain = mbs * (1024L * 1024L);
 		}
 		final boolean zipFiles=options.containsKey("z");
-		boolean matchExtensions=options.containsKey("x");
+		final boolean matchExtensions=options.containsKey("x");
 		int hashLength = 4;
 		if(options.containsKey("l"))
 		{
@@ -210,7 +210,7 @@ public class SimilarFileFinder
 			minPctMatch=Integer.valueOf(options.get("n")).intValue();
 		if(options.containsKey("minimum"))
 			minPctMatch=Integer.valueOf(options.get("minimum")).intValue();
-		
+
 		File baseF=new File(filename);
 		java.util.regex.Pattern P=null;
 		if((filename.indexOf('*')>=0)||(filename.indexOf('+')>=0))
@@ -249,17 +249,17 @@ public class SimilarFileFinder
 			System.err.println("not found: "+filename);
 			System.exit(-1);
 		}
-		List<File> filesToDo=new LinkedList<File>();
+		final List<File> filesToDo=new LinkedList<File>();
 		if(baseF.isDirectory())
 		{
 			try
 			{
-				LinkedList<File> dirsLeft=new LinkedList<File>();
+				final LinkedList<File> dirsLeft=new LinkedList<File>();
 				dirsLeft.add(baseF);
 				while(dirsLeft.size()>0)
 				{
-					File dir=dirsLeft.removeFirst();
-					for(File F : dir.listFiles())
+					final File dir=dirsLeft.removeFirst();
+					for(final File F : dir.listFiles())
 					{
 						if(F.isDirectory())
 						{
@@ -279,7 +279,7 @@ public class SimilarFileFinder
 					}
 				}
 			}
-			catch(Exception e)
+			catch(final Exception e)
 			{
 				e.printStackTrace();
 				System.exit(-1);
@@ -290,29 +290,29 @@ public class SimilarFileFinder
 		final List<String> srchNames=new LinkedList<String>();
 		try
 		{
-			int x=searchPath.lastIndexOf(File.separator);
+			final int x=searchPath.lastIndexOf(File.separator);
 			Pattern searchPattern=null;
 			if(x>0)
 			{
-				String possMatch = searchPath.substring(x+1);
+				final String possMatch = searchPath.substring(x+1);
 				if((possMatch.indexOf('*')>=0)||(possMatch.indexOf('?')>=0))
 				{
-					String regex = possMatch.replace("?", ".?").replace("*", ".*?");
+					final String regex = possMatch.replace("?", ".?").replace("*", ".*?");
 					searchPattern = Pattern.compile(regex);
 					searchPath = searchPath.substring(0, x);
 				}
 			}
-			File s = new File(searchPath);
+			final File s = new File(searchPath);
 			final HashSet<String> done = new HashSet<String>();
 			srchNames.addAll(fetchDirFiles(s,done,options.containsKey("r")||options.containsKey("recurse"),depth,searchPattern));
 		}
-		catch(Exception e)
+		catch(final Exception e)
 		{
 			e.printStackTrace();
 			System.exit(-1);
 		}
 		final Map<String,List<Set<Long>>> cache=new HashMap<String,List<Set<Long>>>();
-		final boolean perfectMatch =(minPctMatch >= 100); 
+		final boolean perfectMatch =(minPctMatch >= 100);
 		for(final File F : filesToDo)
 		{
 			if(filesToDo.size()>0)
@@ -323,16 +323,16 @@ public class SimilarFileFinder
 			try
 			{
 				int x=F.getName().lastIndexOf('.');
-				String fileExt=(x>=0)?F.getName().substring(x+1):"";
-				final byte[] fileBytes = SimilarFileFinder.getFileBytes(F.getAbsolutePath(),zipFiles); 
-				List<Set<Long>> fileData = perfectMatch ? null : buildHashes(fileBytes, hashLength);
+				final String fileExt=(x>=0)?F.getName().substring(x+1):"";
+				final byte[] fileBytes = SimilarFileFinder.getFileBytes(F.getAbsolutePath(),zipFiles);
+				final List<Set<Long>> fileData = perfectMatch ? null : buildHashes(fileBytes, hashLength);
 				final Map<String,Double> scores = new TreeMap<String,Double>();
-				for(String srchFile : srchNames)
+				for(final String srchFile : srchNames)
 				{
 					if(matchExtensions)
 					{
 						x=srchFile.lastIndexOf('.');
-						String srchExt=(x>=0)?srchFile.substring(x+1):"";
+						final String srchExt=(x>=0)?srchFile.substring(x+1):"";
 						if(!srchExt.equalsIgnoreCase(fileExt))
 							continue;
 					}
@@ -350,7 +350,7 @@ public class SimilarFileFinder
 					{
 						srchData = buildFile(srchFile,hashLength,zipFiles);
 						long n=0;
-						for(Set<Long> set : srchData)
+						for(final Set<Long> set : srchData)
 							n += (set.size() * 24);
 						if(cacheBytesRemain > n)
 						{
@@ -375,7 +375,7 @@ public class SimilarFileFinder
 				Collections.sort(srchNames,new Comparator<String>()
 				{
 					@Override
-					public int compare(String arg0, String arg1) 
+					public int compare(final String arg0, final String arg1)
 					{
 						if(!scores.containsKey(arg0))
 						{
@@ -403,7 +403,7 @@ public class SimilarFileFinder
 					}
 				}
 			}
-			catch(Exception e)
+			catch(final Exception e)
 			{
 				e.printStackTrace();
 				System.exit(-1);

@@ -18,9 +18,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-public class FileInsert 
+public class FileInsert
 {
-	public static void main(String[] args)
+	public static void main(final String[] args)
 	{
 		if(args.length<4)
 		{
@@ -40,20 +40,20 @@ public class FileInsert
 		}
 		try
 		{
-			File targF = new File(args[2]);
+			final File targF = new File(args[2]);
 			if(!targF.exists())
 				throw new IOException("Target file doesn't exist: "+targF.getAbsolutePath());
 			byte[] bytesToInsert;
 			try
 			{
-				int b=Integer.parseInt(args[0]);
+				final int b=Integer.parseInt(args[0]);
 				bytesToInsert = new byte[] { (byte)(b&0xFF) };
 			}
-			catch(Exception e)
+			catch(final Exception e)
 			{
 				int offset = 0;
 				String fName=args[0];
-				int x=fName.lastIndexOf('@');
+				final int x=fName.lastIndexOf('@');
 				if(x>0)
 				{
 					try
@@ -61,19 +61,19 @@ public class FileInsert
 						offset = Integer.parseInt(fName.substring(x+1));
 						fName=fName.substring(0, x);
 					}
-					catch(Exception e1)
+					catch(final Exception e1)
 					{
 					}
 				}
-				File srcF=new File(fName);
+				final File srcF=new File(fName);
 				if(!srcF.exists())
 					throw new IOException("Not a byte number, or data file doesn't exist: "+args[0]);
-				FileInputStream fin = new FileInputStream(srcF);
+				final FileInputStream fin = new FileInputStream(srcF);
 				bytesToInsert=new byte[(int)srcF.length()];
 				int dex=0;
 				while(dex<bytesToInsert.length)
 				{
-					int justRead = fin.read(bytesToInsert, dex, bytesToInsert.length-dex);
+					final int justRead = fin.read(bytesToInsert, dex, bytesToInsert.length-dex);
 					if(justRead >= 0)
 						dex+= justRead;
 				}
@@ -88,7 +88,7 @@ public class FileInsert
 				{
 					if(args[1].startsWith("<"))
 					{
-						int x=Integer.parseInt(args[1].substring(1));
+						final int x=Integer.parseInt(args[1].substring(1));
 						if(x < targF.length())
 							throw new IOException("Target length less than existing target: "+x+" < " + targF.length());
 						numBytes = x - (int)targF.length();
@@ -112,39 +112,45 @@ public class FileInsert
 						}
 					}
 				}
-				catch(Exception e)
+				catch(final Exception e)
 				{
 					throw new IOException("Not a length, or the word all: "+args[1]);
 				}
 			}
-			FileInputStream fin = new FileInputStream(targF);
-			ByteArrayOutputStream bout = new ByteArrayOutputStream();
-			long startPos = targF.length();
-			if(!args[3].equalsIgnoreCase("end"))
+			final FileInputStream fin = new FileInputStream(targF);
+			final ByteArrayOutputStream bout = new ByteArrayOutputStream();
+			try
 			{
-				try
+				long startPos = targF.length();
+				if(!args[3].equalsIgnoreCase("end"))
 				{
-					startPos=Integer.parseInt(args[3]);
+					try
+					{
+						startPos=Integer.parseInt(args[3]);
+					}
+					catch(final Exception e)
+					{
+						fin.close();
+						throw new IOException("Not a target offset number, or the word end: "+args[3]);
+					}
 				}
-				catch(Exception e)
-				{
-					fin.close();
-					throw new IOException("Not a target offset number, or the word end: "+args[3]);
-				}
+				long pos = 0;
+				for(;pos<startPos;pos++)
+					bout.write(fin.read());
+				bout.write(bytesToInsert);
+				for(;pos<targF.length();pos++)
+					bout.write(fin.read());
 			}
-			long pos = 0;
-			for(;pos<startPos;pos++)
-				bout.write(fin.read());
-			bout.write(bytesToInsert);
-			for(;pos<targF.length();pos++)
-				bout.write(fin.read());
-			fin.close();
-			bout.close();
-			FileOutputStream fout = new FileOutputStream(targF);
+			finally
+			{
+				fin.close();
+				bout.close();
+			}
+			final FileOutputStream fout = new FileOutputStream(targF);
 			fout.write(bout.toByteArray());
 			fout.close();
 		}
-		catch(IOException e)
+		catch(final IOException e)
 		{
 			System.err.println(e.getMessage());
 		}
