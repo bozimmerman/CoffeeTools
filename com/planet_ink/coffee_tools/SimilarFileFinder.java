@@ -155,6 +155,7 @@ public class SimilarFileFinder
 			System.out.println("-r recursive similar path search");
 			System.out.println("-z decompress .gz files");
 			System.out.println("-c cache size in mb");
+			System.out.println("-t [number] only show matches above [number] %");
 			System.out.println("-depth -d [number] how deep to recurse (only with -r)");
 			System.out.println("-matches -m [number/5] how many top matches to return");
 			System.out.println("-length -l [number/4] length of the hash run");
@@ -191,6 +192,19 @@ public class SimilarFileFinder
 		}
 		final boolean zipFiles=options.containsKey("z");
 		final boolean matchExtensions=options.containsKey("x");
+		int threshold = 0;
+		if(options.containsKey("t"))
+		{
+			try
+			{
+				threshold = Integer.parseInt(options.get("t"));
+			}
+			catch(final Exception e)
+			{
+				System.err.println("illegal threshold: "+options.get("t"));
+				System.exit(-1);
+			}
+		}
 		int hashLength = 4;
 		if(options.containsKey("l"))
 		{
@@ -317,8 +331,11 @@ public class SimilarFileFinder
 		{
 			if(filesToDo.size()>0)
 			{
-				System.out.println("");
-				System.out.println(F.getAbsolutePath()+": ");
+				if(threshold == 0)
+				{
+					System.out.println("");
+					System.out.println(F.getAbsolutePath()+": ");
+				}
 			}
 			try
 			{
@@ -388,7 +405,8 @@ public class SimilarFileFinder
 						return scores.get(arg0).compareTo(scores.get(arg1));
 					}
 				});
-				System.out.println("Most similar: ");
+				if(threshold == 0)
+					System.out.println("Most similar: ");
 				for(int i=srchNames.size()-1;i>=0 && i>srchNames.size()-matches ;i--)
 				{
 					final String path = srchNames.get(i);
@@ -399,7 +417,14 @@ public class SimilarFileFinder
 						x=score.indexOf('.');
 						if((x>0)&&(x<score.length()-2))
 							score=score.substring(0,x+3);
-						System.out.println(score+"% "+path);
+						if(threshold==0)
+							System.out.println(score+"% "+path);
+						else
+						if(threshold >= Double.parseDouble(score))
+						{
+							System.out.println(F.getAbsolutePath());
+							break;
+						}
 					}
 				}
 			}
