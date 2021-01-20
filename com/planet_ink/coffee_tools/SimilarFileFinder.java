@@ -420,7 +420,7 @@ public class SimilarFileFinder
 						if(threshold==0)
 							System.out.println(score+"% "+path);
 						else
-						if(threshold >= Double.parseDouble(score))
+						if(Double.parseDouble(score) >= threshold)
 						{
 							System.out.println(F.getAbsolutePath());
 							break;
