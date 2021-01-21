@@ -86,6 +86,7 @@ public class SimilarFileFinder
 
 		final byte[] fileBytes = new byte[len];
 		int totalBytesRead = 0;
+		int fails=0;
 		while(totalBytesRead < fileBytes.length)
 		{
 			final int bytesRemaining = fileBytes.length - totalBytesRead;
@@ -93,6 +94,23 @@ public class SimilarFileFinder
 			if (bytesRead > 0)
 			{
 				totalBytesRead = totalBytesRead + bytesRead;
+				fails=0;
+			}
+			else
+			{
+				fails++;
+				try
+				{
+					Thread.sleep(500);
+				}
+				catch(final Exception e)
+				{
+				}
+				if(fails > 10)
+				{
+					fi.close();
+					return getFileBytes(filename, zipFlag);
+				}
 			}
 		}
 		fi.close();
