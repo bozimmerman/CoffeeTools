@@ -64,33 +64,67 @@ public class SimilarFileFinder
 	public static byte[] getFileBytes(final String filename, final boolean zipFlag) throws IOException
 	{
 		final File f = new File(filename);
-		InputStream fi;
+		InputStream fi=null;
 		int len=(int)f.length();
 		if(zipFlag && filename.toLowerCase().endsWith(".gz"))
 		{
-			final GZIPInputStream in = new GZIPInputStream(new FileInputStream(f));
-			final byte[] lbuf = new byte[4096];
-			int read=in.read(lbuf);
-			final ByteArrayOutputStream bout=new ByteArrayOutputStream((int)(2*f.length()));
-			while(read >= 0)
+			int fails=0;
+			while(fails<10)
 			{
-				bout.write(lbuf,0,read);
-				read=in.read(lbuf);
+				try
+				{
+					final GZIPInputStream in = new GZIPInputStream(new FileInputStream(f));
+					final byte[] lbuf = new byte[4096];
+					int read=in.read(lbuf);
+					final ByteArrayOutputStream bout=new ByteArrayOutputStream((int)(2*f.length()));
+					while(read >= 0)
+					{
+						bout.write(lbuf,0,read);
+						read=in.read(lbuf);
+					}
+					in.close();
+					fi=new ByteArrayInputStream(bout.toByteArray());
+					len=bout.size();
+					fails=0;
+					break;
+				}
+				catch(final IOException e)
+				{
+					fails++;
+					if(fails<10)
+						System.err.println(filename+": "+e.getMessage()+", retrying...");
+					try
+					{
+						Thread.sleep(500);
+					}
+					catch(final Exception e2)
+					{
+					}
+				}
 			}
-			in.close();
-			fi=new ByteArrayInputStream(bout.toByteArray());
-			len=bout.size();
 		}
 		else
 			fi = new BufferedInputStream(new FileInputStream(f));
-
+		if(fi == null)
+		{
+			return getFileBytes(filename, zipFlag);
+		}
 		final byte[] fileBytes = new byte[len];
 		int totalBytesRead = 0;
 		int fails=0;
 		while(totalBytesRead < fileBytes.length)
 		{
 			final int bytesRemaining = fileBytes.length - totalBytesRead;
-			final int bytesRead = fi.read(fileBytes, totalBytesRead, bytesRemaining);
+			int bytesRead;
+			try
+			{
+				bytesRead = fi.read(fileBytes, totalBytesRead, bytesRemaining);
+			}
+			catch(final IOException e)
+			{
+				System.err.println(filename+": "+e.getMessage()+", retrying...");
+				bytesRead=0;
+			}
 			if (bytesRead > 0)
 			{
 				totalBytesRead = totalBytesRead + bytesRead;
