@@ -161,6 +161,7 @@ public class SimilarFileFinder
 		else
 		if(zipFlag && filename.toLowerCase().endsWith(".zip"))
 		{
+			lenss.putAll(SimilarFileFinder.getFileLengths(filename, false));
 			int fails=0;
 			while(fails<10)
 			{
@@ -242,6 +243,7 @@ public class SimilarFileFinder
 		else
 		if(zipFlag && filename.toLowerCase().endsWith(".zip"))
 		{
+			bytes.putAll(SimilarFileFinder.getFileBytes(filename, false));
 			int fails=0;
 			while(fails<10)
 			{
