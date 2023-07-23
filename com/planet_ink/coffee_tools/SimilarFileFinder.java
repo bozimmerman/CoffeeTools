@@ -621,7 +621,12 @@ public class SimilarFileFinder
 						}
 					});
 					if(!similarsOnly && !searchedOnly)
-						System.out.println("Most similar: ");
+					{
+						if((bytesToDo.size()>1)&&(!fileToDoName.equals(overF.getAbsolutePath())))
+							System.out.println("-"+fileToDoName+" most similar: ");
+						else
+							System.out.println("Most similar: ");
+					}
 					for(int i=srchFinalNames.size()-1;i>=0 && i>srchFinalNames.size()-matches ;i--)
 					{
 						final String path = srchFinalNames.get(i);
