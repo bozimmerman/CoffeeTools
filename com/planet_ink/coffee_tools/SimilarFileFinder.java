@@ -60,7 +60,7 @@ public class SimilarFileFinder
 		}
 		return finalMap;
 	}
-	
+
 	public static Map<String,List<Set<Long>>> buildHashes(final Map<String,byte[]> files, final int hashLength)
 	{
 		final Map<String,List<Set<Long>>> hashes = new TreeMap<String,List<Set<Long>>>();
@@ -72,8 +72,8 @@ public class SimilarFileFinder
 		}
 		return hashes;
 	}
-	
-	public static byte[] readBytes(String filename, InputStream fi, int len, final boolean zipFlag) throws IOException
+
+	public static byte[] readBytes(final String filename, final InputStream fi, final int len, final boolean zipFlag) throws IOException
 	{
 		final byte[] fileBytes = new byte[len];
 		int totalBytesRead = 0;
@@ -116,10 +116,10 @@ public class SimilarFileFinder
 		fi.close();
 		return fileBytes;
 	}
-	
+
 	public static Map<String,Long> getFileLengths(final String filename, final boolean zipFlag)
 	{
-		Map<String,Long> lenss = new TreeMap<String,Long>();
+		final Map<String,Long> lenss = new TreeMap<String,Long>();
 		final File f = new File(filename);
 		int len=(int)f.length();
 		if(zipFlag && filename.toLowerCase().endsWith(".gz"))
@@ -168,7 +168,7 @@ public class SimilarFileFinder
 				try
 				{
 					final ZipFile zf = new ZipFile(filename);
-					for(Enumeration<? extends ZipEntry> i = zf.entries();i.hasMoreElements();)
+					for(final Enumeration<? extends ZipEntry> i = zf.entries();i.hasMoreElements();)
 					{
 						final ZipEntry zE = i.nextElement();
 						if(!zE.isDirectory())
@@ -199,7 +199,7 @@ public class SimilarFileFinder
 
 	public static Map<String,byte[]> getFileBytes(final String filename, final boolean zipFlag) throws IOException
 	{
-		Map<String,byte[]> bytes = new TreeMap<String,byte[]>();
+		final Map<String,byte[]> bytes = new TreeMap<String,byte[]>();
 		final File f = new File(filename);
 		InputStream fi=null;
 		int len=(int)f.length();
@@ -250,7 +250,7 @@ public class SimilarFileFinder
 				try
 				{
 					final ZipFile zf = new ZipFile(filename);
-					for(Enumeration<? extends ZipEntry> i = zf.entries();i.hasMoreElements();)
+					for(final Enumeration<? extends ZipEntry> i = zf.entries();i.hasMoreElements();)
 					{
 						final ZipEntry zE = i.nextElement();
 						if(!zE.isDirectory())
@@ -292,7 +292,7 @@ public class SimilarFileFinder
 			bytes.put(filename, fileBytes);
 			return bytes;
 		}
-		catch(IOException ioe)
+		catch(final IOException ioe)
 		{
 			System.err.println(ioe.getMessage());
 			return getFileBytes(filename, zipFlag);
@@ -336,7 +336,7 @@ public class SimilarFileFinder
 	{
 		if(args.length < 2)
 		{
-			System.out.println("SimilarFinder v2.0");
+			System.out.println("SimilarFinder v2.1");
 			System.out.println("Usage: SimilarFinder [options] [path to all similars] [path/file to search FOR]");
 			System.out.println("Options: ");
 			System.out.println("-r recursive similar path search");
@@ -531,12 +531,12 @@ public class SimilarFileFinder
 					{
 						if(!srchSizeSets.containsKey(srchOverFile))
 							srchSizeSets.put(srchOverFile,SimilarFileFinder.getFileLengths(srchOverFile, zipFiles));
-						final Map<String,Long> srchSizeSet = srchSizeSets.get(srchOverFile); 
+						final Map<String,Long> srchSizeSet = srchSizeSets.get(srchOverFile);
 						for(final String srchFile : srchSizeSet.keySet())
 							srchFinalNames.add(srchFile);
 						for(final String srchFile : srchSizeSet.keySet())
 						{
-							Long size = srchSizeSet.get(srchFile);
+							final Long size = srchSizeSet.get(srchFile);
 							byte[] srchBytes = null;
 							if(matchExtensions)
 							{
