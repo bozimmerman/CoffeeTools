@@ -3,7 +3,7 @@
 		<echo>compile, clean, or docs</echo>
 	</target>
 	<target name="compile">
-		<javac srcdir="." classpath="." nowarn="yes" deprecation="on" target="1.7" source="1.7" debug="on" memoryMaximumSize="1024m" fork="on">
+		<javac srcdir="." classpath=".;commons-compress-1.12.jar" nowarn="yes" deprecation="on" target="1.7" source="1.7" debug="on" memoryMaximumSize="1024m" fork="on">
 			<compilerarg value="-Xlint:unchecked" />
 		</javac>
 		<mkdir dir="bin"/>
@@ -68,6 +68,7 @@
 			</manifest>
 		</jar>
 		<jar destfile="bin/SimilarFileFinder.jar" basedir="." includes="com/planet_ink/coffee_tools/SimilarFileFinder*.class">
+			<zipgroupfileset dir="." includes="**/*.jar" />
 			<manifest>
 				<attribute name="Main-Class" value="com.planet_ink.coffee_tools.SimilarFileFinder"/>
 			</manifest>

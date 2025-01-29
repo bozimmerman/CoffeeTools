@@ -18,7 +18,10 @@ limitations under the License.
 import java.io.*;
 import java.util.*;
 import java.util.regex.Pattern;
-import java.util.zip.*;
+
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 
 public class SimilarFileFinder
 {
@@ -129,7 +132,7 @@ public class SimilarFileFinder
 			{
 				try
 				{
-					final GZIPInputStream in = new GZIPInputStream(new FileInputStream(f));
+					final GzipCompressorInputStream in = new GzipCompressorInputStream(new FileInputStream(f));
 					final byte[] lbuf = new byte[4096];
 					int read=in.read(lbuf);
 					final ByteArrayOutputStream bout=new ByteArrayOutputStream((int)(2*f.length()));
@@ -168,9 +171,9 @@ public class SimilarFileFinder
 				try
 				{
 					final ZipFile zf = new ZipFile(filename);
-					for(final Enumeration<? extends ZipEntry> i = zf.entries();i.hasMoreElements();)
+					for(final Enumeration<? extends ZipArchiveEntry> i = zf.getEntries();i.hasMoreElements();)
 					{
-						final ZipEntry zE = i.nextElement();
+						final ZipArchiveEntry zE = i.nextElement();
 						if(!zE.isDirectory())
 							lenss.put(filename+"//"+zE.getName(), new Long(zE.getSize()));
 					}
@@ -210,7 +213,7 @@ public class SimilarFileFinder
 			{
 				try
 				{
-					final GZIPInputStream in = new GZIPInputStream(new FileInputStream(f));
+					final GzipCompressorInputStream in = new GzipCompressorInputStream(new FileInputStream(f));
 					final byte[] lbuf = new byte[4096];
 					int read=in.read(lbuf);
 					final ByteArrayOutputStream bout=new ByteArrayOutputStream((int)(2*f.length()));
@@ -250,9 +253,9 @@ public class SimilarFileFinder
 				try
 				{
 					final ZipFile zf = new ZipFile(filename);
-					for(final Enumeration<? extends ZipEntry> i = zf.entries();i.hasMoreElements();)
+					for(final Enumeration<? extends ZipArchiveEntry> i = zf.getEntries();i.hasMoreElements();)
 					{
-						final ZipEntry zE = i.nextElement();
+						final ZipArchiveEntry zE = i.nextElement();
 						if(!zE.isDirectory())
 						{
 							fi = zf.getInputStream(zE);
@@ -336,7 +339,7 @@ public class SimilarFileFinder
 	{
 		if(args.length < 2)
 		{
-			System.out.println("SimilarFinder v2.1");
+			System.out.println("SimilarFinder v2.2");
 			System.out.println("Usage: SimilarFinder [options] [path to all similars] [path/file to search FOR]");
 			System.out.println("Options: ");
 			System.out.println("-r recursive similar path search");
@@ -620,13 +623,7 @@ public class SimilarFileFinder
 							return scores.get(arg0).compareTo(scores.get(arg1));
 						}
 					});
-					if(!similarsOnly && !searchedOnly)
-					{
-						if((bytesToDo.size()>1)&&(!fileToDoName.equals(overF.getAbsolutePath())))
-							System.out.println("-"+fileToDoName+" most similar: ");
-						else
-							System.out.println("Most similar: ");
-					}
+					final List<String> finalMatches = new LinkedList<String>();
 					for(int i=srchFinalNames.size()-1;i>=0 && i>srchFinalNames.size()-matches ;i--)
 					{
 						final String path = srchFinalNames.get(i);
@@ -638,17 +635,29 @@ public class SimilarFileFinder
 							if((x>0)&&(x<score.length()-2))
 								score=score.substring(0,x+3);
 							if(!similarsOnly && !searchedOnly)
-								System.out.println(score+"% "+path);
+								finalMatches.add(score+"% "+path);
 							else
 							{
 								if(searchedOnly)
-									System.out.println(fileToDoName);
+									finalMatches.add(fileToDoName);
 								if(similarsOnly)
-									System.out.println(path);
+									finalMatches.add(path);
 								break;
 							}
 						}
 					}
+					if(!similarsOnly && !searchedOnly)
+					{
+						if(finalMatches.size()==0)
+							System.out.println("No matches.");
+						else
+						if((bytesToDo.size()>1)&&(!fileToDoName.equals(overF.getAbsolutePath())))
+							System.out.println("-"+fileToDoName+" most similar: ");
+						else
+							System.out.println("Most similar: ");
+					}
+					for(final String f : finalMatches)
+						System.out.println(f);
 				}
 			}
 			catch(final Exception e)
