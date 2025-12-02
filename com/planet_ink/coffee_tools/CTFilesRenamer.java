@@ -1,6 +1,6 @@
 package com.planet_ink.coffee_tools;
 /*
-Copyright 2017-2017 Bo Zimmerman
+Copyright 2017-2025 Bo Zimmerman
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,9 +17,9 @@ limitations under the License.
 import java.io.*;
 import java.util.Vector;
 
-public class CTFilesRenamer 
+public class CTFilesRenamer
 {
-	
+
 	public static String rightReplacement(StringBuffer repl, String filename)
 	{
 		String srepl=repl.toString();
@@ -40,7 +40,7 @@ public class CTFilesRenamer
 		else
 			return srepl;
 	}
-	
+
 	public static void main(String[] args)
 	{
 		if(args.length<2)

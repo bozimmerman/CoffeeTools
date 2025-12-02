@@ -1,6 +1,6 @@
 package com.planet_ink.coffee_tools;
 /*
-Copyright 2017-2017 Bo Zimmerman
+Copyright 2017-2025 Bo Zimmerman
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,9 +18,9 @@ limitations under the License.
 import java.io.*;
 import java.util.*;
 
-public class FileCompare 
+public class FileCompare
 {
-	public static boolean compareFiles(File file1, File file2) 
+	public static boolean compareFiles(File file1, File file2)
 	{
 		if((!file1.exists())||(!file1.canRead()))
 		{
@@ -45,11 +45,11 @@ public class FileCompare
 			long totalFails=0;
 			long DOT_INTERVAL = ((file1.length() > file2.length()) ? file2.length() : file1.length() / 80);
 			long NEXTDOT = DOT_INTERVAL;
-			while((c1>=0)&&(c2>=0)) 
+			while((c1>=0)&&(c2>=0))
 			{
 				c1=fstream1.read();
 				c2=fstream2.read();
-				if(c1!=c2) 
+				if(c1!=c2)
 				{
 					if(firstFailPos<0)
 					{
@@ -76,16 +76,16 @@ public class FileCompare
 				System.out.println("They are the same.");
 			fstream1.close();
 			fstream2.close();
-		} 
-		catch(java.io.IOException e) 
+		}
+		catch(java.io.IOException e)
 		{
 			e.printStackTrace();
 			System.exit(-1);
 		}
 		return true;
 	}
-	
-	public static void compareAll(File file, boolean delDups) 
+
+	public static void compareAll(File file, boolean delDups)
 	{
 		if((!file.exists())||(!file.canRead())||(!file.isDirectory()))
 		{
@@ -95,16 +95,16 @@ public class FileCompare
 		Hashtable<String,Long> filenameHash=new Hashtable<String,Long>();
 		Hashtable<Long,Vector<Object>> chksumHash=new Hashtable<Long,Vector<Object>>();
 		File[] files=file.listFiles();
-		for(int f=0;f<files.length;f++) 
+		for(int f=0;f<files.length;f++)
 		{
 			File F=files[f];
-			try 
+			try
 			{
 				FileInputStream fstream1=new FileInputStream(F);
 				int c1=0;
 				long pos=0;
 				long chksum=0;
-				while(c1>=0) 
+				while(c1>=0)
 				{
 					c1=fstream1.read();
 					pos++;
@@ -112,26 +112,26 @@ public class FileCompare
 				}
 				filenameHash.put(F.getName(),new Long(chksum));
 				Vector<Object> V=chksumHash.get(new Long(chksum));
-				if(V==null) 
+				if(V==null)
 				{
 					V=new Vector<Object>();
 					chksumHash.put(new Long(chksum),V);
 				}
 				V.addElement(F);
 				fstream1.close();
-			} 
-			catch(java.io.IOException e) 
+			}
+			catch(java.io.IOException e)
 			{
 				e.printStackTrace();
 				System.exit(-1);
 			}
 		}
-		
-		for(Enumeration<Long> e=chksumHash.keys();e.hasMoreElements();) 
+
+		for(Enumeration<Long> e=chksumHash.keys();e.hasMoreElements();)
 		{
 			Long L=e.nextElement();
 			Vector<Object> V=chksumHash.get(L);
-			if(V.size()>0) 
+			if(V.size()>0)
 			{
 				for(int v1=0;v1<V.size();v1++)
 				{
@@ -139,19 +139,19 @@ public class FileCompare
 					{
 						File F1=(File)V.elementAt(v1);
 						File F2=(File)V.elementAt(v2);
-						if(compareFiles(F1,F2)) 
+						if(compareFiles(F1,F2))
 						{
-							if(delDups) 
+							if(delDups)
 							{
 								System.out.println(F2.getName() +" deleted");
 								V.remove(F2);
 								F2.delete();
 								v2--;
-							} 
-							else 
+							}
+							else
 								System.out.println(F1.getName() +" same as " + F2.getName());
-						} 
-						else 
+						}
+						else
 						{
 							System.out.println(F1.getName() +" different than " + F2.getName());
 						}
@@ -160,31 +160,31 @@ public class FileCompare
 			}
 		}
 	}
-	
-	public static void main(String[] args) 
+
+	public static void main(String[] args)
 	{
-		
-		if(args.length!=2) 
+
+		if(args.length!=2)
 		{
 			System.out.println("USAGE: FileCompare File1 File2");
 			System.out.println("USAGE: FileCompare ALL DirPath");
 			System.out.println("USAGE: FileCompare DELDUPS DirPath");
 			System.exit(-1);
 		}
-		if(args[0].equalsIgnoreCase("ALL")) 
+		if(args[0].equalsIgnoreCase("ALL"))
 		{
 			File file=new File(args[1]);
 			compareAll(file,false);
-			
-		} 
+
+		}
 		else
-		if(args[0].equalsIgnoreCase("DELDUPS")) 
+		if(args[0].equalsIgnoreCase("DELDUPS"))
 		{
 			File file=new File(args[1]);
 			compareAll(file,true);
-			
-		} 
-		else 
+
+		}
+		else
 		{
 			File file1=new File(args[0]);
 			File file2=new File(args[1]);

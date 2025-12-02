@@ -1,6 +1,6 @@
 package com.planet_ink.coffee_tools;
 /*
-Copyright 2017-2017 Bo Zimmerman
+Copyright 2017-2025 Bo Zimmerman
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -50,16 +50,16 @@ public class SimilarFileFinder
 		final List<Set<Long>> finalMap = new ArrayList<Set<Long>>();
 		for(int b=0;b<hashLength;b++)
 		{
-			final Set<Long> ThisSet = new TreeSet<Long>();
+			final Set<Long> tset = new TreeSet<Long>();
 			for(int i=b;i+hashLength-1<bytes.length;i+=hashLength)
 			{
 				long hash = 0;
 				for(int x=0;x<hashLength;x++)
 					hash = (hash << 8) | bytes[i+x];
-				if(!ThisSet.contains(Long.valueOf(hash)))
-					ThisSet.add(Long.valueOf(hash));
+				if(!tset.contains(Long.valueOf(hash)))
+					tset.add(Long.valueOf(hash));
 			}
-			finalMap.add(ThisSet);
+			finalMap.add(tset);
 		}
 		return finalMap;
 	}
