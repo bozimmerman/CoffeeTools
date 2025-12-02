@@ -25,6 +25,17 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 
 public class SimilarFileFinder
 {
+	private static final int MAX_RETRIES = 10;
+	private static final int RETRY_DELAY_MS = 500;
+	private static final int DEFAULT_HASH_LENGTH = 4;
+	private static final long DEFAULT_CACHE_MB = 16;
+
+	private static String getExtension(final String filename)
+	{
+		final int lastDot = filename.lastIndexOf('.');
+		return (lastDot>=0)?filename.substring(lastDot+1):"";
+	}
+
 	public static int numMatches(final List<Set<Long>> matchSet, final List<Set<Long>> fileSet, final int hashLength)
 	{
 		int numFound = 0;
@@ -56,8 +67,9 @@ public class SimilarFileFinder
 				long hash = 0;
 				for(int x=0;x<hashLength;x++)
 					hash = (hash << 8) | bytes[i+x];
-				if(!tset.contains(Long.valueOf(hash)))
-					tset.add(Long.valueOf(hash));
+				final Long hashObj = Long.valueOf(hash);
+				if(!tset.contains(hashObj))
+					tset.add(hashObj);
 			}
 			finalMap.add(tset);
 		}
@@ -104,12 +116,12 @@ public class SimilarFileFinder
 				fails++;
 				try
 				{
-					Thread.sleep(500);
+					Thread.sleep(RETRY_DELAY_MS);
 				}
 				catch(final Exception e)
 				{
 				}
-				if(fails > 10)
+				if(fails > MAX_RETRIES)
 				{
 					fi.close();
 					throw new IOException("Too many fails.");
@@ -128,7 +140,7 @@ public class SimilarFileFinder
 		if(zipFlag && filename.toLowerCase().endsWith(".gz"))
 		{
 			int fails=0;
-			while(fails<10)
+			while(fails<MAX_RETRIES)
 			{
 				try
 				{
@@ -149,11 +161,11 @@ public class SimilarFileFinder
 				catch(final IOException e)
 				{
 					fails++;
-					if(fails<10)
+					if(fails<MAX_RETRIES)
 						System.err.println(filename+": "+e.getMessage()+", retrying...");
 					try
 					{
-						Thread.sleep(500);
+						Thread.sleep(RETRY_DELAY_MS);
 					}
 					catch(final Exception e2)
 					{
@@ -166,7 +178,7 @@ public class SimilarFileFinder
 		{
 			lenss.putAll(SimilarFileFinder.getFileLengths(filename, false));
 			int fails=0;
-			while(fails<10)
+			while(fails<MAX_RETRIES)
 			{
 				try
 				{
@@ -183,11 +195,11 @@ public class SimilarFileFinder
 				catch(final IOException e)
 				{
 					fails++;
-					if(fails<10)
+					if(fails<MAX_RETRIES)
 						System.err.println(filename+": "+e.getMessage()+", retrying...");
 					try
 					{
-						Thread.sleep(500);
+						Thread.sleep(RETRY_DELAY_MS);
 					}
 					catch(final Exception e2)
 					{
@@ -209,7 +221,7 @@ public class SimilarFileFinder
 		if(zipFlag && filename.toLowerCase().endsWith(".gz"))
 		{
 			int fails=0;
-			while(fails<10)
+			while(fails<MAX_RETRIES)
 			{
 				try
 				{
@@ -231,11 +243,11 @@ public class SimilarFileFinder
 				catch(final IOException e)
 				{
 					fails++;
-					if(fails<10)
+					if(fails<MAX_RETRIES)
 						System.err.println(filename+": "+e.getMessage()+", retrying...");
 					try
 					{
-						Thread.sleep(500);
+						Thread.sleep(RETRY_DELAY_MS);
 					}
 					catch(final Exception e2)
 					{
@@ -248,7 +260,7 @@ public class SimilarFileFinder
 		{
 			bytes.putAll(SimilarFileFinder.getFileBytes(filename, false));
 			int fails=0;
-			while(fails<10)
+			while(fails<MAX_RETRIES)
 			{
 				try
 				{
@@ -270,11 +282,11 @@ public class SimilarFileFinder
 				catch(final IOException e)
 				{
 					fails++;
-					if(fails<10)
+					if(fails<MAX_RETRIES)
 						System.err.println(filename+": "+e.getMessage()+", retrying...");
 					try
 					{
-						Thread.sleep(500);
+						Thread.sleep(RETRY_DELAY_MS);
 					}
 					catch(final Exception e2)
 					{
@@ -359,7 +371,7 @@ public class SimilarFileFinder
 		final String filename = args[args.length-1];
 		String searchPath = args[args.length-2];
 		final Map<String,String> options = new Hashtable<String,String>();
-		long cacheBytesRemain=16 * 1024 * 1024;
+		long cacheBytesRemain=DEFAULT_CACHE_MB * 1024 * 1024;
 		for(int i=0;i<args.length-2;i++)
 		{
 			if(args[i].startsWith("-")||args[i].startsWith("/"))
@@ -385,7 +397,7 @@ public class SimilarFileFinder
 		final boolean matchExtensions=options.containsKey("x");
 		final boolean similarsOnly=options.containsKey("t");
 		final boolean searchedOnly=options.containsKey("s");
-		int hashLength = 4;
+		int hashLength = DEFAULT_HASH_LENGTH;
 		if(options.containsKey("l"))
 		{
 			hashLength = Integer.valueOf(options.get("l")).intValue();
@@ -524,8 +536,7 @@ public class SimilarFileFinder
 				final Map<String,Map<String,Long>> srchSizeSets = new TreeMap<String,Map<String,Long>>();
 				for(final String fileToDoName : bytesToDo.keySet())
 				{
-					int x=fileToDoName.lastIndexOf('.');
-					final String fileExt=(x>=0)?fileToDoName.substring(x+1):"";
+					final String fileExt=getExtension(fileToDoName);
 					final byte[] fileBytes = bytesToDo.get(fileToDoName);
 					final List<Set<Long>> fileData = fileDatasToDo.get(fileToDoName);
 					final Map<String,Double> scores = new TreeMap<String,Double>();
@@ -543,8 +554,7 @@ public class SimilarFileFinder
 							byte[] srchBytes = null;
 							if(matchExtensions)
 							{
-								x=srchFile.lastIndexOf('.');
-								final String srchExt=(x>=0)?srchFile.substring(x+1):"";
+								final String srchExt=getExtension(srchFile);
 								if(!srchExt.equalsIgnoreCase(fileExt))
 									continue;
 							}
@@ -631,7 +641,7 @@ public class SimilarFileFinder
 						&&(scores.containsKey(path)))
 						{
 							String score=scores.get(path).toString();
-							x=score.indexOf('.');
+							int x=score.indexOf('.');
 							if((x>0)&&(x<score.length()-2))
 								score=score.substring(0,x+3);
 							if(!similarsOnly && !searchedOnly)
